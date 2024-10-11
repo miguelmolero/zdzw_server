@@ -1,6 +1,8 @@
+build/
 static/
 ZDZW_BE/
 __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+*.spec
