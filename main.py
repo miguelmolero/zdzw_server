@@ -33,9 +33,15 @@ print(f"Serving static files from: {static_folder_path}")
 # Montar los archivos estáticos en FastAPI
 app.mount("/static", StaticFiles(directory=static_folder_path), name="static")
 
+# Ruta para servir el index.html en la raíz
+@app.get("/")
+async def serve_root():
+    return FileResponse(os.path.join(static_folder_path, "index.html"))
+
+# Ruta catch-all para manejar otras rutas de la aplicación frontend
 @app.get("/{full_path:path}")
 async def serve_frontend(full_path: str):
-    return FileResponse("static/dist/index.html")
+    return FileResponse(os.path.join(static_folder_path, "index.html"))
 
 if __name__ == "__main__":
     import uvicorn
