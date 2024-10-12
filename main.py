@@ -1,3 +1,5 @@
+import os
+import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -14,8 +16,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add static files
-app.mount("/static", StaticFiles(directory="static/dist"), name="static")
+# Verificar si el script está empaquetado por PyInstaller
+if getattr(sys, 'frozen', False):
+    # Carpeta temporal donde PyInstaller descomprime los archivos
+    base_path = sys._MEIPASS
+else:
+    # En desarrollo, usa la carpeta actual
+    base_path = os.path.abspath(os.path.dirname(__file__))
+
+# Ruta a los archivos estáticos (ajustado para PyInstaller)
+static_folder_path = os.path.join(base_path, 'static/dist')
+
+# Imprimir la ruta para depurar
+print(f"Serving static files from: {static_folder_path}")
+
+# Montar los archivos estáticos en FastAPI
+app.mount("/static", StaticFiles(directory=static_folder_path), name="static")
 
 @app.get("/{full_path:path}")
 async def serve_frontend(full_path: str):
