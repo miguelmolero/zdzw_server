@@ -3,9 +3,9 @@ from fastapi import Depends, HTTPException, Security
 from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 from jose import jwt, JWTError
-from config import SECRET_KEY, ALGORITHM
+from config.config import SECRET_KEY, ALGORITHM
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()

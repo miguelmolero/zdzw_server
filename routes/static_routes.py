@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from ..config import STATIC_FOLDER_PATH
+from config.config import STATIC_FOLDER_PATH
 
 def register_static_routes(app: FastAPI):
     # Monta la carpeta de archivos estáticos

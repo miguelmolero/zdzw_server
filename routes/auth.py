@@ -1,16 +1,18 @@
-# backend/routers/auth.py
-from fastapi import APIRouter, Depends, HTTPException
+# backend/routes/auth.py
+from fastapi import APIRouter, Depends, HTTPException, Form
 from services.auth_service import create_access_token, verify_token
 from models.user import User, Token
-from config import ACCESS_TOKEN_EXPIRE_MINUTES
+from config.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
 
 router = APIRouter()
 
 @router.post("/login", response_model=Token)
-async def login(username: str, password: str):
+async def login(username: str = Form(...), password: str = Form(...)):
     # Aquí deberías validar el usuario contra tu base de datos
     # y validar contraseña. Este es solo un ejemplo simplificado.
+    print('USERNAME', username)
+    print('PASSWORD',password)
     user = User(username=username, role="user")  # Asigna roles según corresponda
     access_token = create_access_token(
         data={"sub": user.username, "role": user.role},
