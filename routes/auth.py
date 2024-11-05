@@ -1,5 +1,5 @@
 # backend/routes/auth.py
-from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi import APIRouter, Depends, HTTPException, Body
 from services.auth_service import create_access_token, verify_token
 from models.user import User, Token
 from config.config import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -8,7 +8,7 @@ from datetime import timedelta
 router = APIRouter()
 
 @router.post("/login", response_model=Token)
-async def login(username: str = Form(...), password: str = Form(...)):
+async def login(username: str = Body(...), password: str = Body(...)):
     # Aquí deberías validar el usuario contra tu base de datos
     # y validar contraseña. Este es solo un ejemplo simplificado.
     print('USERNAME', username)
