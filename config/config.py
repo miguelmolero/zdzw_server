@@ -18,3 +18,4 @@ STATIC_FOLDER_PATH = os.path.join(BASE_PATH, '../static/dist')
 SECRET_KEY = secrets.token_urlsafe(32)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+DATABASE_URL = "sqlite:///./zdzw.db"  # database URL
