@@ -1,21 +1,34 @@
 # backend/routes/auth.py
 from fastapi import APIRouter, Depends, HTTPException, Body
+from datetime import timedelta
+from sqlalchemy.orm import Session
 from services.auth_service import create_access_token, verify_token
 from models.user import User, Token
+from database.models.users import User as DatabaseUser
 from config.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from datetime import timedelta
+from services import database_service as database
+from database.database import GetDbInstance
+from utils.security import verify_password
 
 router = APIRouter()
 
 @router.post("/login", response_model=Token)
-async def login(username: str = Body(...), password: str = Body(...)):
-    # Aquí deberías validar el usuario contra tu base de datos
-    # y validar contraseña. Este es solo un ejemplo simplificado.
+async def login(username: str = Body(...), password: str = Body(...), db: Session = Depends(GetDbInstance)):
+    
     print('USERNAME', username)
     print('PASSWORD',password)
-    user = User(username=username, role="user")  # Asigna roles según corresponda
+    database_user = database.SelectByUserName(db, DatabaseUser, username)
+    if not database_user:
+        print("Invalid username")
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+    isCorrect = verify_password(password, database_user.password)
+    if not isCorrect:
+        print("Invalid password")
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+    
+    login_user = User(username=username, role="admin")  # Asigna roles según corresponda
     access_token = create_access_token(
-        data={"sub": user.username, "role": user.role},
+        data={"sub": login_user.username, "role": login_user.role},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     return {"access_token": access_token, "token_type": "bearer"}

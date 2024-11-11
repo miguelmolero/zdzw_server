@@ -1,11 +1,17 @@
-from fastapi import FastAPI, Depends
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from middlewares.cors_middleware import add_middlewares
 from routes.static_routes import register_static_routes
 from routes.auth import router as auth_router
-from services.auth_service import verify_token 
+from database.database import init_db
 
-app = FastAPI()
+# Initialize database
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 # Add CORS middleware
 add_middlewares(app)

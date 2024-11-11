@@ -2,11 +2,15 @@
 from sqlalchemy.orm import Session
 from typing import Type, List, Optional
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from database.database import Base
+from database.base import Base
+# from database.models.users import User
 
 # Select by ID
 def SelectById(db: Session, model: Type[DeclarativeMeta], instance_id: int):
     return db.query(model).filter(model.id == instance_id).first()
+
+def SelectByUserName(db: Session, model: Type[DeclarativeMeta], user_name: str):
+    return db.query(model).filter(model.user == user_name).first()
 
 # Select all rows of a table
 def SelectAll(db: Session, model: Type[DeclarativeMeta]) -> List[DeclarativeMeta]:
@@ -28,7 +32,7 @@ def Insert(db: Session, model: Type[DeclarativeMeta], **kwargs) -> DeclarativeMe
     return instance
 
 # Update an existing row
-def Update(db: Session, model: Type[DeclarativeMeta], instance_id: int, **kwargs) -> Optional[DeclarativeMeta]:
+def UpdateById(db: Session, model: Type[DeclarativeMeta], instance_id: int, **kwargs) -> Optional[DeclarativeMeta]:
     instance = db.query(model).filter(model.id == instance_id).first()
     if not instance:
         return None
@@ -39,7 +43,7 @@ def Update(db: Session, model: Type[DeclarativeMeta], instance_id: int, **kwargs
     return instance
 
 # Delete an existing row
-def Delete(db: Session, model: Type[DeclarativeMeta], instance_id: int) -> Optional[DeclarativeMeta]:
+def DeleteById(db: Session, model: Type[DeclarativeMeta], instance_id: int) -> Optional[DeclarativeMeta]:
     instance = db.query(model).filter(model.id == instance_id).first()
     if instance:
         db.delete(instance)
