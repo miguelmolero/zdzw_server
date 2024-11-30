@@ -1,20 +1,23 @@
 from fastapi import APIRouter, HTTPException
-from pathlib import Path
+from fastapi.responses import JSONResponse
 import json
+import os
+from config.config import RECORDS_PATH
 
 router = APIRouter()
 
-@router.get("/strip_data")
+@router.get("/api/strip_data")
 async def get_strip_data():
-    json_file_path = Path(__file__).parent.parent / "data" / "sample.json"
-    if not json_file_path.exists():
-        raise HTTPException(status_code=404, detail="JSON file not found")
+    json_file_path = os.path.join(RECORDS_PATH ,"StripData.json")
+    if not os.path.exists(json_file_path):
+        raise HTTPException(status_code=404, detail="record not found")
     
     try:
-        with open(json_file_path, "r") as file:
+        with open(json_file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
             # Seleccionar solo los valores de ejemplo
-            selected_data = [item["value"] for item in data["records"]]
-            return {"selected_data": selected_data}
+        return JSONResponse(content=data)
     except json.JSONDecodeError:
-        raise HTTPException(status_code=500, detail="Error parsing JSON file")
+        raise HTTPException(status_code=500, detail="Error al decodificar el archivo JSON")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al leer el archivo: {str(e)}")
