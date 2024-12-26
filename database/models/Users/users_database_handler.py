@@ -2,7 +2,7 @@
 from sqlalchemy.orm import Session
 from typing import Type, List, Optional
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from database.base import Base
+from database.database_conection import Base
 # from database.models.users import User
 
 # Select by ID
