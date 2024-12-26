@@ -4,12 +4,12 @@ from middlewares.cors_middleware import add_middlewares
 from routes.static_routes import register_static_routes
 from routes.auth import router as auth_router
 from routes.data_visualization import router as data_visualization_router
-from database.database import init_db
+from services.Initialize import initialize
 
 # Initialize database
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    initialize()
     yield
 
 app = FastAPI(lifespan=lifespan)
