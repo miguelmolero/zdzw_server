@@ -47,8 +47,8 @@ async def get_strip_chart(record_id: int):
     
 @router.post("/api/stripchart/{navigation}")
 async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
-    print(navigation)
-    print(payload_data)
+    #print("@router.post)", navigation)
+    #print("@router.post)", payload_data)
 
     filter_by_date = False
     filter_by_disposition = False

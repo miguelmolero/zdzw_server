@@ -33,6 +33,11 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], start_date: da
             "first": db.query(model).filter(model.disposition == disposition).order_by(model.timestamp.asc()).first(),
             "last": db.query(model).filter(model.disposition == disposition).order_by(model.timestamp.desc()).first()
         })
+    elif start_date is not -1 and end_date is not -1 and disposition is -1:
+        return ({
+            "first": db.query(model).filter(model.timestamp >= start_date).filter(model.timestamp <= end_date).order_by(model.timestamp.asc()).first(),
+            "last": db.query(model).filter(model.timestamp >= start_date).filter(model.timestamp <= end_date).order_by(model.timestamp.desc()).first()
+        })
     else:
         query = (
             db.query(model)
