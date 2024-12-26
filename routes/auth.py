@@ -4,10 +4,10 @@ from datetime import timedelta
 from sqlalchemy.orm import Session
 from services.auth_service import create_access_token, verify_token
 from models.user import User, Token
-from database.models.users import User as DatabaseUser
+from database.models.Users.users import User as DatabaseUser
 from config.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from services import database_service as database
-from database.database import GetDbInstance
+from database.models.Users import users_database_handler as database
+from database.database_conection import GetDbInstance
 from utils.security import verify_password
 
 router = APIRouter()
