@@ -4,8 +4,8 @@ import shutil
 from datetime import datetime
 from config.config import RECEIVED_RECORDS_PATH, STORED_RECORDS_PATH
 from database.database_conection import SessionLocal
-from database.models.RecordsData.records_data import RecordsData
-import database.models.RecordsData.records_data_database_handler as records_data_handler
+from database.models.RecordData.records_data import RecordsData
+import database.models.RecordData.records_data_database_handler as records_data_handler
 from models.record_data import RecordRawData
 
 
