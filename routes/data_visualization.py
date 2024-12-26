@@ -7,8 +7,8 @@ from datetime import datetime
 from config.config import STORED_RECORDS_PATH, BASE_PATH
 from models.filter_payload import FiltersPayload
 from database.database_conection import SessionLocal
-from database.models.RecordData.records_data_database_handler import SelectFirstAndLast, SelectAdjacentRecord
-from database.models.RecordData.records_data import RecordsData
+from database.models.RecordDataModel.records_data_database_handler import SelectFirstAndLast, SelectAdjacentRecord
+from database.models.RecordDataModel.records_data import RecordsData
 
 router = APIRouter()
 
