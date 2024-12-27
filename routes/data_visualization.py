@@ -101,7 +101,9 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                     raise HTTPException(status_code=404, detail="record not found")
                 with open(json_file, "r", encoding="utf-8") as file:
                     data = orjson.loads(file.read())
-                    payload_to_send = data
+                    payload_to_send = {
+                        "data": data
+                    }
                     return JSONResponse(content=payload_to_send)
             except orjson.JSONDecodeError:
                 raise HTTPException(status_code=500, detail="Error to decode JSON file")

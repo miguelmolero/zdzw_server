@@ -62,13 +62,13 @@ def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], record_id: i
     else:
         current_range = db.query(model).order_by(model.timestamp.asc()).all()
 
-        for idx, record in enumerate(current_range):
-            if record.record_id == record_id:
-                if navigation == "next" and idx + 1 < len(current_range):
-                    return current_range[idx + 1].record_id
-                elif navigation == "previous" and idx - 1 >= 0:
-                    return current_range[idx - 1].record_id
-                break
+    for idx, record in enumerate(current_range):
+        if record.record_id == record_id:
+            if navigation == "next" and idx + 1 < len(current_range):
+                return current_range[idx + 1].record_id
+            elif navigation == "previous" and idx - 1 >= 0:
+                return current_range[idx - 1].record_id
+            break
 
 # Insert a new row
 def InsertRecord(db: Session, model: Type[DeclarativeMeta], **kwargs) -> bool:
