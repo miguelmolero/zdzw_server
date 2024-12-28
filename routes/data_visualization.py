@@ -6,9 +6,11 @@ from pathlib import Path
 from datetime import datetime
 from config.config import STORED_RECORDS_PATH, BASE_PATH
 from models.filter_payload import FiltersPayload
+from models.record_data import RecordRawData
 from database.database_conection import SessionLocal
 from database.models.RecordDataModel.records_data_database_handler import SelectFirstAndLast, SelectAdjacentRecord
 from database.models.RecordDataModel.records_data import RecordsData
+from services.get_filtered_data import get_filtered_data
 
 router = APIRouter()
 
@@ -62,6 +64,7 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
     init_data = payload_data.start_date
     end_data = payload_data.end_date
     disposition = payload_data.disposition
+    apply_filters = payload_data.apply_filters
 
     db = SessionLocal()
 
@@ -81,8 +84,11 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                     raise HTTPException(status_code=404, detail="record not found")
                 with open(json_file, "r", encoding="utf-8") as file:
                     data = orjson.loads(file.read())
+                    parsed_data = RecordRawData.parse_custom(data)
+                    if apply_filters:
+                        filtered_data = get_filtered_data(parsed_data)
                     payload_to_send = {
-                        "data": data,
+                        "data": filtered_data.model_dump() if apply_filters else parsed_data.model_dump(),
                         "max_record_id": edge_data["last"].record_id,
                         "min_record_id": edge_data["first"].record_id
                     }
@@ -101,8 +107,9 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                     raise HTTPException(status_code=404, detail="record not found")
                 with open(json_file, "r", encoding="utf-8") as file:
                     data = orjson.loads(file.read())
+                    parsed_data = RecordRawData.parse_custom(data)
                     payload_to_send = {
-                        "data": data
+                        "data": parsed_data.model_dump(),
                     }
                     return JSONResponse(content=payload_to_send)
             except orjson.JSONDecodeError:
