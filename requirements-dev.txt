@@ -4,3 +4,4 @@ argon2-cffi
 python-jose
 SQLAlchemy
 orjson
+scipy
