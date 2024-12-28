@@ -18,9 +18,11 @@ class StripData(BaseModel):
     distance: List[float]
     amplitude: List[float]
     tof: List[float]
+    amp_damages: Optional[List[float]] = None
+    tof_damages: Optional[List[float]] = None
 
 class RecordData(BaseModel):
-    metadata: Metadata
+    meta_data: Metadata
     strip_data: List[StripData]
 
 class ErrorData(BaseModel):
@@ -48,7 +50,7 @@ class RecordRawData(BaseModel):
                 "errors": data.get("error", {}).get("errors"),
             },
             "payload_data": {
-                "metadata": {
+                "meta_data": {
                     "record_id": payload.get("record_id"),
                     "timestamp": payload.get("timestamp"),
                     "setup_id": payload.get("setup_id"),
@@ -66,6 +68,8 @@ class RecordRawData(BaseModel):
                         "distance": strip.get("distance", []),
                         "amplitude": strip.get("amplitude", []),
                         "tof": strip.get("tof", []),
+                        "amp_damages": strip.get("amp_damages", []),
+                        "tof_damages": strip.get("tof_damages", []),
                     }
                     for strip in strip_data
                 ],
