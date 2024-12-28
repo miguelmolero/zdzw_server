@@ -108,8 +108,10 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                 with open(json_file, "r", encoding="utf-8") as file:
                     data = orjson.loads(file.read())
                     parsed_data = RecordRawData.parse_custom(data)
+                    if apply_filters:
+                        filtered_data = get_filtered_data(parsed_data)
                     payload_to_send = {
-                        "data": parsed_data.model_dump(),
+                        "data": filtered_data.model_dump() if apply_filters else  parsed_data.model_dump(),
                     }
                     return JSONResponse(content=payload_to_send)
             except orjson.JSONDecodeError:
