@@ -76,7 +76,8 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                 records = edge_data["first"]
             else:
                 records = edge_data["last"]
-            json_file_path = os.path.join(STORED_RECORDS_PATH, str(records.record_id))
+            file_path = str(records.factory_id) + "/" + str(records.device_id) + "/" + str(records.record_id) 
+            json_file_path = os.path.join(STORED_RECORDS_PATH, file_path)
             try:
                 folder = Path(json_file_path)
                 json_file = list(folder.glob("*.json"))[0]
@@ -89,8 +90,16 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                         filtered_data = get_filtered_data(parsed_data)
                     payload_to_send = {
                         "data": filtered_data.model_dump() if apply_filters else parsed_data.model_dump(),
-                        "max_record_id": edge_data["last"].record_id,
-                        "min_record_id": edge_data["first"].record_id
+                        "max_record": {
+                            "factory_id": edge_data["last"].factory_id,
+                            "device_id": edge_data["last"].device_id,
+                            "record_id": edge_data["last"].record_id
+                        },
+                        "min_record": {
+                            "factory_id": edge_data["first"].factory_id,
+                            "device_id": edge_data["first"].device_id,
+                            "record_id": edge_data["first"].record_id
+                        }
                     }
                     return JSONResponse(content=payload_to_send)
             except orjson.JSONDecodeError:
@@ -98,8 +107,9 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Error to read file: {str(e)}")
         case "previous" | "next":
-            adjacent_record_id = SelectAdjacentRecord(db, RecordsData, payload_data.current_record_id, disposition, navigation)
-            json_file_path = os.path.join(STORED_RECORDS_PATH, str(adjacent_record_id))
+            adjacent_record = SelectAdjacentRecord(db, RecordsData, payload_data, navigation)
+            record_path = str(adjacent_record.factory_id) + "/" + str(adjacent_record.device_id) + "/" + str(adjacent_record.record_id)
+            json_file_path = os.path.join(STORED_RECORDS_PATH, record_path)
             try:
                 folder = Path(json_file_path)
                 json_file = list(folder.glob("*.json"))[0]
