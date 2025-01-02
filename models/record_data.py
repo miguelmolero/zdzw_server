@@ -25,6 +25,11 @@ class RecordData(BaseModel):
     meta_data: Metadata
     strip_data: List[StripData]
 
+class LocalizationData(BaseModel):
+    factory_id: int
+    factory_name: str
+    device_id: int
+    device_name: str
 class ErrorData(BaseModel):
     code: int
     msg: str
@@ -34,12 +39,14 @@ class RecordRawData(BaseModel):
     success: bool
     error: ErrorData
     payload_data: RecordData
+    localization_data: LocalizationData
 
     @classmethod
     def parse_custom(cls, data: Dict[str, Any]) -> "RecordRawData":
         # Adaptar el JSON al modelo esperado
         payload = data.get("payload", {})
         strip_data = payload.get("strip_data", [])
+        localization_data = data.get("localization_info", {})
 
         # Transformar el JSON para que coincida con la estructura esperada
         transformed_data = {
@@ -73,6 +80,12 @@ class RecordRawData(BaseModel):
                     }
                     for strip in strip_data
                 ],
+            },
+            "localization_data": {
+                "factory_id": localization_data.get("factory_id"),
+                "factory_name": localization_data.get("factory_name"),
+                "device_id": localization_data.get("device_id"),
+                "device_name": localization_data.get("device_name"),
             },
         }
 

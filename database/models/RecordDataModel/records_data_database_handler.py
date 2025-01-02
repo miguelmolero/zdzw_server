@@ -3,11 +3,19 @@ from sqlalchemy.exc import SQLAlchemyError
 from typing import Type, List, Optional, Dict
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from datetime import datetime
+from models.filter_payload import FiltersPayload
 from database.database_conection import Base
 
 # Select by Record ID
-def SelectByRecordId(db: Session, model: Type[DeclarativeMeta], record_id: int):
-    return db.query(model).filter(model.record_id == record_id).first()
+def SelectByRecordId(db: Session, model: Type[DeclarativeMeta], record_id: int, factory_id: int, device_id: int) -> bool:
+    query = (
+        db.query(model)
+        .filter(model.record_id == record_id)
+        .filter(model.factory_id == factory_id)
+        .filter(model.device_id == device_id)
+        .first()
+    )
+    return True if query != None else False
 
 # Select by Disposition
 def SelectByDisposition(db: Session, model: Type[DeclarativeMeta], disposition: int):
@@ -50,7 +58,12 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], start_date: da
             "last": query.order_by(model.timestamp.desc()).first()
         })
     
-def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], record_id: int, disposition: int, navigation: str) -> Optional[int]:
+def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: FiltersPayload, navigation: str) -> Optional[DeclarativeMeta]:
+    disposition = filters.disposition
+    record_id = filters.current_record_id
+    factory_id = filters.factory_id
+    device_id = filters.device_id
+    
     current_range = []
     if disposition is not -1:
         current_range = (
@@ -63,11 +76,11 @@ def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], record_id: i
         current_range = db.query(model).order_by(model.timestamp.asc()).all()
 
     for idx, record in enumerate(current_range):
-        if record.record_id == record_id:
+        if record.record_id == record_id and record.factory_id == factory_id and record.device_id == device_id:
             if navigation == "next" and idx + 1 < len(current_range):
-                return current_range[idx + 1].record_id
+                return current_range[idx + 1]
             elif navigation == "previous" and idx - 1 >= 0:
-                return current_range[idx - 1].record_id
+                return current_range[idx - 1]
             break
 
 # Insert a new row

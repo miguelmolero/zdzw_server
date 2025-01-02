@@ -8,4 +8,6 @@ class FiltersPayload(BaseModel):
     start_date: Optional[Union[datetime,int]] = None
     end_date: Optional[Union[datetime, int]] = None
     disposition: Optional[int] = None
+    factory_id: Optional[int] = None
+    device_id: Optional[int] = None
     apply_filters: Optional[bool] = False
