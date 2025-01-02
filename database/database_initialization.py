@@ -13,11 +13,20 @@ def init_db():
 db = SessionLocal()
 
 try:
-    admin_user = db.query(User).filter(User.user == 'innerspec').first()
-    if not admin_user:
+    innerspec_user = db.query(User).filter(User.user == 'innerspec').first()
+    if not innerspec_user:
         new_user = User(
             user="innerspec", 
             password=hash_password("innerspec!root#1"),
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+    admin_user = db.query(User).filter(User.user == 'admin').first()
+    if not admin_user:
+        new_user = User(
+            user="admin", 
+            password=hash_password("admin123"),
         )
         db.add(new_user)
         db.commit()
