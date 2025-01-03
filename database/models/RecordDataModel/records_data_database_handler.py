@@ -4,8 +4,8 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy import func, case
 from typing import Type, List, Optional, Dict
 from datetime import datetime
-from models.filter_payload import FiltersPayload
-from models.statistics_data import StatsData, StatisticsData, FactoryStatsData
+from models.filter_payload import RequestedPayload
+from models.statistics_data import StatsData
 from database.database_conection import Base
 
 # Select by Record ID
@@ -60,11 +60,11 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], start_date: da
             "last": query.order_by(model.timestamp.desc()).first()
         })
     
-def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: FiltersPayload, navigation: str) -> Optional[DeclarativeMeta]:
-    disposition = filters.disposition
-    record_id = filters.current_record_id
-    factory_id = filters.factory_id
-    device_id = filters.device_id
+def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: RequestedPayload, navigation: str) -> Optional[DeclarativeMeta]:
+    disposition = filters.filters.disposition
+    current_record_id = filters.current_record.record_id
+    current_factory_id = filters.current_record.factory_id
+    current_device_id = filters.current_record.device_id
     
     current_range = []
     if disposition is not -1:
@@ -78,7 +78,7 @@ def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: Fil
         current_range = db.query(model).order_by(model.timestamp.asc()).all()
 
     for idx, record in enumerate(current_range):
-        if record.record_id == record_id and record.factory_id == factory_id and record.device_id == device_id:
+        if record.record_id == current_record_id and record.factory_id == current_factory_id and record.device_id == current_device_id:
             if navigation == "next" and idx + 1 < len(current_range):
                 return current_range[idx + 1]
             elif navigation == "previous" and idx - 1 >= 0:

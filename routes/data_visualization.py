@@ -6,7 +6,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import List
 from config.config import STORED_RECORDS_PATH, BASE_PATH
-from models.filter_payload import FiltersPayload
+from models.filter_payload import RequestedPayload, InspectionFilters, CurrentRecord
 from models.record_data import RecordRawData
 from models.statistics_data import StatisticsData, FactoryStatsData, StatsData
 from database.database_conection import SessionLocal
@@ -54,18 +54,20 @@ async def get_strip_chart(record_id: int):
         raise HTTPException(status_code=500, detail=f"Error to read file: {str(e)}")
     
 @router.post("/api/stripchart/{navigation}")
-async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
+async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
     #print("@router.post)", navigation)
     #print("@router.post)", payload_data)
+    filters_data : InspectionFilters = payload_data.filters
+    current_record_data : CurrentRecord = payload_data.current_record
 
-    if payload_data.start_date != -1:
-        if payload_data.end_date == -1:
-            payload_data.end_date = datetime.now()
+    if filters_data.start_date != -1:
+        if filters_data.end_date == -1:
+            filters_data.end_date = datetime.now()
 
-    init_data = payload_data.start_date
-    end_data = payload_data.end_date
-    disposition = payload_data.disposition
-    is_analysis = payload_data.is_analysis
+    init_data = filters_data.start_date
+    end_data = filters_data.end_date
+    disposition = filters_data.disposition
+    is_analysis = filters_data.is_analysis
 
     db = SessionLocal()
 
@@ -131,13 +133,16 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                 raise HTTPException(status_code=500, detail=f"Error to read file: {str(e)}")
             
 @router.post("/api/statistics")
-async def post_statistics(payload_data: FiltersPayload):
-    init_data = payload_data.start_date
-    end_data = payload_data.end_date
-    disposition = payload_data.disposition
-    factory_id = payload_data.factory_id
-    device_id = payload_data.device_id
-    is_analysis = payload_data.is_analysis
+async def post_statistics(payload_data: RequestedPayload):
+    filters_data : InspectionFilters = payload_data.filters
+    current_record_data : CurrentRecord = payload_data.current_record
+
+    init_data = filters_data.start_date
+    end_data = filters_data.end_date
+    disposition = filters_data.disposition
+    factory_id = filters_data.factory_id
+    device_id = filters_data.device_id
+    is_analysis = filters_data.is_analysis
     
     db = SessionLocal()
 
