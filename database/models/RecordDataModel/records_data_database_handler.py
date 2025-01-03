@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy import func, case
 from typing import Type, List, Optional, Dict
 from datetime import datetime
-from models.filter_payload import RequestedPayload, InspectionFilters
+from models.filter_payload import RequestedPayload, InspectionFilters, CurrentRecord
 from models.statistics_data import StatsData
 from database.database_conection import Base
 
@@ -59,21 +59,27 @@ def GetFirstTimestamp(db: Session, model: Type[DeclarativeMeta]) -> Optional[dat
     return db.query(func.min(model.timestamp)).first()
     
 def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: RequestedPayload, navigation: str) -> Optional[DeclarativeMeta]:
-    disposition = filters.nav_filters.disposition
-    current_record_id = filters.loaded_record.record_id
-    current_factory_id = filters.loaded_record.factory_id
-    current_device_id = filters.loaded_record.device_id
+    ins_filters = filters.nav_filters
+    current_record = filters.loaded_record
+    
+    disposition = ins_filters.disposition
+    factory_id = ins_filters.factory_id
+    device_id = ins_filters.device_id
+
+    current_record_id = current_record.record_id
+    current_factory_id = current_record.factory_id
+    current_device_id = current_record.device_id
     
     current_range = []
-    if disposition is not -1:
-        current_range = (
-            db.query(model)
-            .filter(model.disposition == disposition)
-            .order_by(model.timestamp.asc())
-            .all()
-        )
-    else:
-        current_range = db.query(model).order_by(model.timestamp.asc()).all()
+    query = db.query(model)
+    if factory_id != -1:
+        query = query.filter(model.factory_id == factory_id)
+    if device_id != -1:
+        query = query.filter(model.device_id == device_id)
+    if disposition != -1:
+        query = query.filter(model.disposition == disposition)
+
+    current_range = query.order_by(model.timestamp.asc()).all()
 
     for idx, record in enumerate(current_range):
         if record.record_id == current_record_id and record.factory_id == current_factory_id and record.device_id == current_device_id:
