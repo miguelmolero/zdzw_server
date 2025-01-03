@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from typing import Type
+from typing import Type, List
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 def GetFactoryId(db: Session, model: Type[DeclarativeMeta], device_id: int):
@@ -11,6 +11,9 @@ def GetDeviceName(db: Session, model: Type[DeclarativeMeta], device_id: int) -> 
 
 def GetDeviceByFactoryId(db: Session, model: Type[DeclarativeMeta], factory_id: int) -> bool:
     return True if db.query(model).filter(model.factory_id == factory_id).first() != None else False
+
+def GetDevices(db: Session, model: Type[DeclarativeMeta], factory_id: int) -> List[int]:
+    return [row[0] for row in db.query(model.device_id).filter(model.factory_id == factory_id).all()]
 
 def InsertDeviceData(db: Session, model: Type[DeclarativeMeta], **kwargs) -> bool:
     try:

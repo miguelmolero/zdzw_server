@@ -4,12 +4,18 @@ import orjson
 import os
 from pathlib import Path
 from datetime import datetime
+from typing import List
 from config.config import STORED_RECORDS_PATH, BASE_PATH
 from models.filter_payload import FiltersPayload
 from models.record_data import RecordRawData
+from models.statistics_data import StatisticsData, FactoryStatsData, StatsData
 from database.database_conection import SessionLocal
 from database.models.RecordDataModel.records_data import RecordsData
+from database.models.FactoryDataModel.factory_data import FactoryData
+from database.models.DeviceDataModel.device_data import DeviceData
 from database.models.RecordDataModel import records_data_database_handler as record_data_handler
+from database.models.FactoryDataModel import factory_data_database_handler as factory_data_handler
+from database.models.DeviceDataModel import device_data_database_handler as device_data_handler
 from services.get_filtered_data import get_filtered_data
 
 router = APIRouter()
@@ -123,3 +129,45 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                 raise HTTPException(status_code=500, detail="Error to decode JSON file")
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Error to read file: {str(e)}")
+            
+@router.post("/api/statistics")
+async def post_statistics(payload_data: FiltersPayload):
+    init_data = payload_data.start_date
+    end_data = payload_data.end_date
+    disposition = payload_data.disposition
+    factory_id = payload_data.factory_id
+    device_id = payload_data.device_id
+    is_analysis = payload_data.is_analysis
+    
+    db = SessionLocal()
+
+    statistics_data = StatisticsData(factory_stats=[])
+    factory_stats : List[FactoryStatsData] = []
+    factories = []
+    if factory_id == -1:
+        factories = factory_data_handler.GetFactories(db, FactoryData)
+    else:
+        if not factory_data_handler.SelectByFactoryId(db, FactoryData, factory_id): 
+            return JSONResponse(content={"error": "Factory not found"})
+        else:
+            factories.append(factory_id)
+
+    for factory in factories:
+        devices_stats : List[StatsData] = []
+        factory_data : StatsData
+        if device_id == -1:
+            devices_stats = record_data_handler.get_device_stats(db, RecordsData, factory)
+        else:
+            if not device_data_handler.GetDeviceByFactoryId(db, DeviceData, factory_id):
+                return JSONResponse(content={"error": "Device not found"})
+            else:
+                device_data = StatsData(record_data_handler.get_device_stats(db, RecordsData, factory, device_id)[0])
+                devices_stats.append(device_data)
+        factory_data = record_data_handler.get_factory_stats(db, RecordsData, factory)
+        factory_stats.append(FactoryStatsData(factory_data=factory_data, device_stats=devices_stats))
+        
+    statistics_data.factory_stats = factory_stats
+    payload_to_send = {
+        "data": StatisticsData.encode_custom(statistics_data)
+    }
+    return JSONResponse(content=payload_to_send)

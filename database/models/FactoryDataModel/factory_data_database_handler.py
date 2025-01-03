@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from typing import Type
+from typing import Type, List, Optional
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 def SelectByFactoryId(db: Session, model: Type[DeclarativeMeta], factory_id: int) -> bool:
@@ -8,6 +8,9 @@ def SelectByFactoryId(db: Session, model: Type[DeclarativeMeta], factory_id: int
 
 def GetFactoryName(db: Session, model: Type[DeclarativeMeta], factory_id: int) -> str:
     return db.query(model).filter(model.factory_id == factory_id).first().factory_name
+
+def GetFactories(db: Session, model: Type[DeclarativeMeta]) -> Optional[List[int]]:
+    return [row[0] for row in db.query(model.factory_id).all()]
 
 def InsertFactoryData(db: Session, model: Type[DeclarativeMeta], **kwargs) -> bool:
     try:

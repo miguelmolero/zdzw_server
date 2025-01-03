@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from typing import Type, List, Optional, Dict
 from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy import func, case
+from typing import Type, List, Optional, Dict
 from datetime import datetime
 from models.filter_payload import FiltersPayload
+from models.statistics_data import StatsData, StatisticsData, FactoryStatsData
 from database.database_conection import Base
 
 # Select by Record ID
@@ -82,6 +84,63 @@ def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: Fil
             elif navigation == "previous" and idx - 1 >= 0:
                 return current_range[idx - 1]
             break
+    
+def get_factory_stats(db: Session, model: Type[DeclarativeMeta], factory_id: int) -> StatsData:
+    result = (
+        db.query(
+            func.count().label("total_count"),
+            func.sum(case((model.disposition == 1, 1), else_=0)).label("pass_count"),
+            func.sum(case((model.disposition == 2, 1), else_=0)).label("fail_count"),
+            func.sum(case((model.disposition == 3, 1), else_=0)).label("invalid_count")
+        )
+        .filter(model.factory_id == factory_id)
+        .first()
+    )
+
+    factory_stats_data = StatsData(
+        id=factory_id,
+        total_count=result.total_count,
+        pass_count=result.pass_count,
+        fail_count=result.fail_count,
+        invalid_count=result.invalid_count,
+        pass_percentage=(result.pass_count / result.total_count) * 100,
+        fail_percentage=(result.fail_count / result.total_count) * 100,
+        invalid_percentage=(result.invalid_count / result.total_count) * 100
+    )
+    return factory_stats_data
+
+def get_device_stats(db: Session, model: Type[DeclarativeMeta], factory_id: int, device_id: int = -1) -> List[StatsData]:
+    query = (
+        db.query(
+            model.device_id,
+            func.count().label("total_count"),
+            func.sum(case((model.disposition == 1, 1), else_=0)).label("pass_count"),
+            func.sum(case((model.disposition == 2, 1), else_=0)).label("fail_count"),
+            func.sum(case((model.disposition == 3, 1), else_=0)).label("invalid_count")
+        )
+        .filter(model.factory_id == factory_id)
+    )
+    if device_id != -1:
+        query = query.filter(model.device_id == device_id)
+    else:
+        query = query.group_by(model.device_id)
+
+    result = query.all()
+    device_stats_data = []
+    for row in result:
+        device_stats_data.append(
+            StatsData(
+                id=row.device_id,
+                total_count=row.total_count,
+                pass_count=row.pass_count,
+                fail_count=row.fail_count,
+                invalid_count=row.invalid_count,
+                pass_percentage=(row.pass_count / row.total_count) * 100,
+                fail_percentage=(row.fail_count / row.total_count) * 100,
+                invalid_percentage=(row.invalid_count / row.total_count) * 100
+            )
+        )
+    return device_stats_data
 
 # Insert a new row
 def InsertRecord(db: Session, model: Type[DeclarativeMeta], **kwargs) -> bool:
