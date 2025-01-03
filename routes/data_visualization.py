@@ -55,10 +55,8 @@ async def get_strip_chart(record_id: int):
     
 @router.post("/api/stripchart/{navigation}")
 async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
-    #print("@router.post)", navigation)
-    #print("@router.post)", payload_data)
-    filters_data : InspectionFilters = payload_data.filters
-    current_record_data : CurrentRecord = payload_data.current_record
+    filters_data : InspectionFilters = payload_data.nav_filters
+    current_record_data : CurrentRecord = payload_data.loaded_record
 
     if filters_data.start_date != -1:
         if filters_data.end_date == -1:
@@ -134,8 +132,8 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
             
 @router.post("/api/statistics")
 async def post_statistics(payload_data: RequestedPayload):
-    filters_data : InspectionFilters = payload_data.filters
-    current_record_data : CurrentRecord = payload_data.current_record
+    filters_data : InspectionFilters = payload_data.nav_filters
+    current_record_data : CurrentRecord = payload_data.loaded_record
 
     init_data = filters_data.start_date
     end_data = filters_data.end_date

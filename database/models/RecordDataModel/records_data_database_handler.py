@@ -61,10 +61,10 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], start_date: da
         })
     
 def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: RequestedPayload, navigation: str) -> Optional[DeclarativeMeta]:
-    disposition = filters.filters.disposition
-    current_record_id = filters.current_record.record_id
-    current_factory_id = filters.current_record.factory_id
-    current_device_id = filters.current_record.device_id
+    disposition = filters.nav_filters.disposition
+    current_record_id = filters.loaded_record.record_id
+    current_factory_id = filters.loaded_record.factory_id
+    current_device_id = filters.loaded_record.device_id
     
     current_range = []
     if disposition is not -1:

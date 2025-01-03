@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime 
-from typing import Optional, Union
+from typing import Optional, Union, Dict, Any
 
 class InspectionFilters(BaseModel):
     requested_record_id: Optional[int] = None
@@ -17,5 +17,5 @@ class CurrentRecord(BaseModel):
     record_id: int
 
 class RequestedPayload(BaseModel):
-    filters: InspectionFilters
-    current_record: CurrentRecord
+    nav_filters: InspectionFilters
+    loaded_record: CurrentRecord
