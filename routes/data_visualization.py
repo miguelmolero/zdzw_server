@@ -9,6 +9,7 @@ from models.filter_payload import FiltersPayload
 from models.record_data import RecordRawData
 from database.database_conection import SessionLocal
 from database.models.RecordDataModel.records_data import RecordsData
+from database.models.RecordDataModel import records_data_database_handler as record_data_handler
 from services.get_filtered_data import get_filtered_data
 
 router = APIRouter()
