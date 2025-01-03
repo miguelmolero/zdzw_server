@@ -9,6 +9,7 @@ class InspectionFilters(BaseModel):
     disposition: Optional[int] = None
     factory_id: Optional[int] = None
     device_id: Optional[int] = None
+    job_id: Optional[int] = None
     is_analysis: Optional[bool] = False
 
 class CurrentRecord(BaseModel):

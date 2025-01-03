@@ -108,6 +108,8 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
                 raise HTTPException(status_code=500, detail=f"Error to read file: {str(e)}")
         case "previous" | "next":
             adjacent_record = record_data_handler.SelectAdjacentRecord(db, RecordsData, payload_data, navigation)
+            if adjacent_record is None:
+                raise HTTPException(status_code=404, detail="record not found")
             record_path = str(adjacent_record.factory_id) + "/" + str(adjacent_record.device_id) + "/" + str(adjacent_record.record_id)
             json_file_path = os.path.join(STORED_RECORDS_PATH, record_path)
             try:

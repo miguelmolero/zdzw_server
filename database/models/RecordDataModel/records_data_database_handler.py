@@ -38,6 +38,7 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], filters : Insp
     disposition = filters.disposition
     factory_id = filters.factory_id
     device_id = filters.device_id
+    job_id = filters.job_id
 
     query = db.query(model)
 
@@ -47,6 +48,8 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], filters : Insp
         query = query.filter(model.device_id == device_id)
     if disposition != -1:
         query = query.filter(model.disposition == disposition)
+    if job_id != -1:
+        query = query.filter(model.job_id == job_id)
     if start_date != -1 and end_date != -1:
         query = query.filter(model.timestamp >= start_date).filter(model.timestamp <= end_date)
 
@@ -65,6 +68,7 @@ def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: Req
     disposition = ins_filters.disposition
     factory_id = ins_filters.factory_id
     device_id = ins_filters.device_id
+    job_id = ins_filters.job_id
 
     current_record_id = current_record.record_id
     current_factory_id = current_record.factory_id
@@ -78,6 +82,8 @@ def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: Req
         query = query.filter(model.device_id == device_id)
     if disposition != -1:
         query = query.filter(model.disposition == disposition)
+    if job_id != -1:
+        query = query.filter(model.job_id == job_id)
 
     current_range = query.order_by(model.timestamp.asc()).all()
 
