@@ -61,10 +61,6 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
     if filters_data.start_date != -1:
         if filters_data.end_date == -1:
             filters_data.end_date = datetime.now()
-
-    init_data = filters_data.start_date
-    end_data = filters_data.end_date
-    disposition = filters_data.disposition
     is_analysis = filters_data.is_analysis
 
     db = SessionLocal()
@@ -72,7 +68,9 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
     match navigation:
         case "first" | "last":
             # edge_data = {}
-            edge_data = record_data_handler.SelectFirstAndLast(db, RecordsData, init_data, end_data, disposition, navigation)
+            edge_data = record_data_handler.SelectFirstAndLast(db, RecordsData, filters_data)
+            if edge_data["first"] is None or edge_data["last"] is None:
+                raise HTTPException(status_code=404, detail="record not found")
             if (navigation == "first"):
                 records = edge_data["first"]
             else:

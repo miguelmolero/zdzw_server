@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy import func, case
 from typing import Type, List, Optional, Dict
 from datetime import datetime
-from models.filter_payload import RequestedPayload
+from models.filter_payload import RequestedPayload, InspectionFilters
 from models.statistics_data import StatsData
 from database.database_conection import Base
 
@@ -31,34 +31,29 @@ def SelectRecordIdByTimestamp(db: Session, model: Type[DeclarativeMeta], start_d
         .all()
     )
 
-def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], start_date: datetime, end_date: datetime, disposition: int, navigation: str) -> Optional[Dict[str, DeclarativeMeta]]:
+def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], filters : InspectionFilters) -> Optional[Dict[str, DeclarativeMeta]]:
     
-    if start_date is -1 and end_date is -1 and disposition is -1:
-        return ({
-            "first": db.query(model).order_by(model.timestamp.asc()).first(),
-            "last": db.query(model).order_by(model.timestamp.desc()).first()
-        })
-    elif start_date is -1 and end_date is -1 and disposition is not -1:
-        return ({
-            "first": db.query(model).filter(model.disposition == disposition).order_by(model.timestamp.asc()).first(),
-            "last": db.query(model).filter(model.disposition == disposition).order_by(model.timestamp.desc()).first()
-        })
-    elif start_date is not -1 and end_date is not -1 and disposition is -1:
-        return ({
-            "first": db.query(model).filter(model.timestamp >= start_date).filter(model.timestamp <= end_date).order_by(model.timestamp.asc()).first(),
-            "last": db.query(model).filter(model.timestamp >= start_date).filter(model.timestamp <= end_date).order_by(model.timestamp.desc()).first()
-        })
-    else:
-        query = (
-            db.query(model)
-            .filter(model.timestamp >= start_date)
-            .filter(model.timestamp <= end_date)
-            .filter(model.disposition == disposition)
-        )
-        return ({
-            "first": query.order_by(model.timestamp.asc()).first(),
-            "last": query.order_by(model.timestamp.desc()).first()
-        })
+    start_date = filters.start_date
+    end_date = filters.end_date
+    disposition = filters.disposition
+    factory_id = filters.factory_id
+    device_id = filters.device_id
+
+    query = db.query(model)
+
+    if factory_id != -1:
+        query = query.filter(model.factory_id == factory_id)
+    if device_id != -1:
+        query = query.filter(model.device_id == device_id)
+    if disposition != -1:
+        query = query.filter(model.disposition == disposition)
+    if start_date != -1 and end_date != -1:
+        query = query.filter(model.timestamp >= start_date).filter(model.timestamp <= end_date)
+
+    return ({
+        "first": query.order_by(model.timestamp.asc()).first(),
+        "last": query.order_by(model.timestamp.desc()).first()
+    })
     
 def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: RequestedPayload, navigation: str) -> Optional[DeclarativeMeta]:
     disposition = filters.nav_filters.disposition
