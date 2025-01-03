@@ -40,6 +40,8 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], filters : Insp
     device_id = filters.device_id
     job_id = filters.job_id
 
+    print("FILTERS JOB ID", job_id)
+
     query = db.query(model)
 
     if factory_id != -1:
@@ -52,6 +54,8 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], filters : Insp
         query = query.filter(model.job_id == job_id)
     if start_date != -1 and end_date != -1:
         query = query.filter(model.timestamp >= start_date).filter(model.timestamp <= end_date)
+
+    
 
     return ({
         "first": query.order_by(model.timestamp.asc()).first(),

@@ -38,6 +38,7 @@ def read_received_data():
                     json_timestamp = datetime.fromtimestamp(metadata.timestamp)
                     json_name = metadata.name
                     json_disposition = metadata.disposition
+                    json_job_id = metadata.job_id
 
                     # Insertar en la base de datos si no existe
                     db = SessionLocal()
@@ -69,10 +70,10 @@ def read_received_data():
                             os.remove(file_path)
                         continue
                     else:
-                        
                         new_inspection = RecordsData(
                             record_id = json_record_id,
                             timestamp = json_timestamp,
+                            job_id = json_job_id,
                             job_name = json_name,
                             disposition = json_disposition,
                             factory_id = localization_data.factory_id,
