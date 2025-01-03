@@ -59,8 +59,9 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
     current_record_data : CurrentRecord = payload_data.loaded_record
 
     if filters_data.start_date != -1:
-        if filters_data.end_date == -1:
-            filters_data.end_date = datetime.now()
+        filters_data.start_date = record_data_handler.GetFirstTimestamp(db, RecordsData)
+    if filters_data.end_date == -1:
+        filters_data.end_date = datetime.now()
     is_analysis = filters_data.is_analysis
 
     db = SessionLocal()

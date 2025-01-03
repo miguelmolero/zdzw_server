@@ -54,6 +54,9 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], filters : Insp
         "first": query.order_by(model.timestamp.asc()).first(),
         "last": query.order_by(model.timestamp.desc()).first()
     })
+
+def GetFirstTimestamp(db: Session, model: Type[DeclarativeMeta]) -> Optional[datetime]:
+    return db.query(func.min(model.timestamp)).first()
     
 def SelectAdjacentRecord(db: Session, model: Type[DeclarativeMeta], filters: RequestedPayload, navigation: str) -> Optional[DeclarativeMeta]:
     disposition = filters.nav_filters.disposition
