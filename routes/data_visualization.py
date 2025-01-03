@@ -8,7 +8,6 @@ from config.config import STORED_RECORDS_PATH, BASE_PATH
 from models.filter_payload import FiltersPayload
 from models.record_data import RecordRawData
 from database.database_conection import SessionLocal
-from database.models.RecordDataModel.records_data_database_handler import SelectFirstAndLast, SelectAdjacentRecord
 from database.models.RecordDataModel.records_data import RecordsData
 from services.get_filtered_data import get_filtered_data
 
@@ -52,26 +51,21 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
     #print("@router.post)", navigation)
     #print("@router.post)", payload_data)
 
-    filter_by_date = False
-    filter_by_disposition = False
     if payload_data.start_date != -1:
-        filter_by_date = True
         if payload_data.end_date == -1:
             payload_data.end_date = datetime.now()
-    if payload_data.disposition != -1:
-        filter_by_disposition = True
 
     init_data = payload_data.start_date
     end_data = payload_data.end_date
     disposition = payload_data.disposition
-    apply_filters = payload_data.apply_filters
+    is_analysis = payload_data.is_analysis
 
     db = SessionLocal()
 
     match navigation:
         case "first" | "last":
             # edge_data = {}
-            edge_data = SelectFirstAndLast(db, RecordsData, init_data, end_data, disposition, navigation)
+            edge_data = record_data_handler.SelectFirstAndLast(db, RecordsData, init_data, end_data, disposition, navigation)
             if (navigation == "first"):
                 records = edge_data["first"]
             else:
@@ -86,10 +80,10 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                 with open(json_file, "r", encoding="utf-8") as file:
                     data = orjson.loads(file.read())
                     parsed_data = RecordRawData.parse_custom(data)
-                    if apply_filters:
+                    if is_analysis:
                         filtered_data = get_filtered_data(parsed_data)
                     payload_to_send = {
-                        "data": filtered_data.model_dump() if apply_filters else parsed_data.model_dump(),
+                        "data": filtered_data.model_dump() if is_analysis else parsed_data.model_dump(),
                         "max_record": {
                             "factory_id": edge_data["last"].factory_id,
                             "device_id": edge_data["last"].device_id,
@@ -107,7 +101,7 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Error to read file: {str(e)}")
         case "previous" | "next":
-            adjacent_record = SelectAdjacentRecord(db, RecordsData, payload_data, navigation)
+            adjacent_record = record_data_handler.SelectAdjacentRecord(db, RecordsData, payload_data, navigation)
             record_path = str(adjacent_record.factory_id) + "/" + str(adjacent_record.device_id) + "/" + str(adjacent_record.record_id)
             json_file_path = os.path.join(STORED_RECORDS_PATH, record_path)
             try:
@@ -118,10 +112,10 @@ async def post_strip_chart(navigation: str, payload_data: FiltersPayload):
                 with open(json_file, "r", encoding="utf-8") as file:
                     data = orjson.loads(file.read())
                     parsed_data = RecordRawData.parse_custom(data)
-                    if apply_filters:
+                    if is_analysis:
                         filtered_data = get_filtered_data(parsed_data)
                     payload_to_send = {
-                        "data": filtered_data.model_dump() if apply_filters else  parsed_data.model_dump(),
+                        "data": filtered_data.model_dump() if is_analysis else  parsed_data.model_dump(),
                     }
                     return JSONResponse(content=payload_to_send)
             except orjson.JSONDecodeError:

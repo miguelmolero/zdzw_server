@@ -10,4 +10,4 @@ class FiltersPayload(BaseModel):
     disposition: Optional[int] = None
     factory_id: Optional[int] = None
     device_id: Optional[int] = None
-    apply_filters: Optional[bool] = False
+    is_analysis: Optional[bool] = False
