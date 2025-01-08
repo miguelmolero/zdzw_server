@@ -40,8 +40,6 @@ def SelectFirstAndLast(db: Session, model: Type[DeclarativeMeta], filters : Insp
     device_id = filters.device_id
     job_id = filters.job_id
 
-    print("FILTERS JOB ID", job_id)
-
     query = db.query(model)
 
     if factory_id != -1:

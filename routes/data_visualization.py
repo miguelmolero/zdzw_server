@@ -148,13 +148,14 @@ async def post_statistics(payload_data: RequestedPayload):
     statistics_data = StatisticsData(factory_stats=[])
     factory_stats : List[FactoryStatsData] = []
     factories = []
-    if factory_id == -1:
-        factories = factory_data_handler.GetFactories(db, FactoryData)
-    else:
-        if not factory_data_handler.SelectByFactoryId(db, FactoryData, factory_id): 
-            return JSONResponse(content={"error": "Factory not found"})
-        else:
-            factories.append(factory_id)
+    # if factory_id == -1:
+    #     factories = factory_data_handler.GetFactories(db, FactoryData)
+    # else:
+    #     if not factory_data_handler.SelectByFactoryId(db, FactoryData, factory_id): 
+    #         return JSONResponse(content={"error": "Factory not found"})
+    #     else:
+    #         factories.append(factory_id)
+    factories = factory_data_handler.GetFactories(db, FactoryData, filters_data)
 
     for factory in factories:
         devices_stats : List[StatsData] = []
@@ -172,4 +173,5 @@ async def post_statistics(payload_data: RequestedPayload):
         
     statistics_data.factory_stats = factory_stats
     payload_to_send = StatisticsData.encode_custom(statistics_data)
+    db.close()
     return JSONResponse(content=payload_to_send)
