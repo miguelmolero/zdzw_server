@@ -12,6 +12,10 @@ class InspectionFilters(BaseModel):
     job_id: Optional[int] = None
     is_analysis: Optional[bool] = False
 
+class OrderFilters(BaseModel):
+    order_by: Optional[str] = None
+    order_type: Optional[str] = None
+
 class CurrentRecord(BaseModel):
     factory_id: int
     device_id: int
@@ -19,4 +23,5 @@ class CurrentRecord(BaseModel):
 
 class RequestedPayload(BaseModel):
     nav_filters: InspectionFilters
+    order_filters: Optional[OrderFilters] = None
     loaded_record: CurrentRecord

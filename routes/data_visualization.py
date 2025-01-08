@@ -58,13 +58,13 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
     filters_data : InspectionFilters = payload_data.nav_filters
     current_record_data : CurrentRecord = payload_data.loaded_record
 
+    db = SessionLocal()
+
     if filters_data.start_date != -1:
         filters_data.start_date = record_data_handler.GetFirstTimestamp(db, RecordsData)
     if filters_data.end_date == -1:
         filters_data.end_date = datetime.now()
     is_analysis = filters_data.is_analysis
-
-    db = SessionLocal()
 
     match navigation:
         case "first" | "last":
@@ -171,7 +171,5 @@ async def post_statistics(payload_data: RequestedPayload):
         factory_stats.append(FactoryStatsData(factory_data=factory_data, device_stats=devices_stats))
         
     statistics_data.factory_stats = factory_stats
-    payload_to_send = {
-        "data": StatisticsData.encode_custom(statistics_data)
-    }
+    payload_to_send = StatisticsData.encode_custom(statistics_data)
     return JSONResponse(content=payload_to_send)
