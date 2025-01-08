@@ -117,9 +117,9 @@ def get_factory_stats(db: Session, model: Type[DeclarativeMeta], factory_id: int
         pass_count=result.pass_count,
         fail_count=result.fail_count,
         invalid_count=result.invalid_count,
-        pass_percentage=(result.pass_count / result.total_count) * 100,
-        fail_percentage=(result.fail_count / result.total_count) * 100,
-        invalid_percentage=(result.invalid_count / result.total_count) * 100
+        pass_rate=(result.pass_count / result.total_count) * 100,
+        fail_rate=(result.fail_count / result.total_count) * 100,
+        invalid_rate=(result.invalid_count / result.total_count) * 100
     )
     return factory_stats_data
 
@@ -149,9 +149,9 @@ def get_device_stats(db: Session, model: Type[DeclarativeMeta], factory_id: int,
                 pass_count=row.pass_count,
                 fail_count=row.fail_count,
                 invalid_count=row.invalid_count,
-                pass_percentage=(row.pass_count / row.total_count) * 100,
-                fail_percentage=(row.fail_count / row.total_count) * 100,
-                invalid_percentage=(row.invalid_count / row.total_count) * 100
+                pass_rate=(row.pass_count / row.total_count) * 100,
+                fail_rate=(row.fail_count / row.total_count) * 100,
+                invalid_rate=(row.invalid_count / row.total_count) * 100
             )
         )
     return device_stats_data

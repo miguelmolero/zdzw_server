@@ -7,9 +7,9 @@ class StatsData(BaseModel):
     pass_count: int
     fail_count: int
     invalid_count: int
-    pass_percentage: float
-    fail_percentage: float
-    invalid_percentage: float
+    pass_rate: float
+    fail_rate: float
+    invalid_rate: float
 
 class FactoryStatsData(BaseModel):
     factory_data: StatsData
@@ -28,9 +28,9 @@ class StatisticsData(BaseModel):
                     "pass_count": factory.factory_data.pass_count,
                     "fail_count": factory.factory_data.fail_count,
                     "invalid_count": factory.factory_data.invalid_count,
-                    "pass_percentage": factory.factory_data.pass_percentage,
-                    "fail_percentage": factory.factory_data.fail_percentage,
-                    "invalid_percentage": factory.factory_data.invalid_percentage,
+                    "pass_rate": factory.factory_data.pass_rate,
+                    "fail_rate": factory.factory_data.fail_rate,
+                    "invalid_rate": factory.factory_data.invalid_rate,
                     "device_stats": [
                         {
                             "id": device.id,
@@ -38,9 +38,9 @@ class StatisticsData(BaseModel):
                             "pass_count": device.pass_count,
                             "fail_count": device.fail_count,
                             "invalid_count": device.invalid_count,
-                            "pass_percentage": device.pass_percentage,
-                            "fail_percentage": device.fail_percentage,
-                            "invalid_percentage": device.invalid_percentage
+                            "pass_rate": device.pass_rate,
+                            "fail_rate": device.fail_rate,
+                            "invalid_rate": device.invalid_rate
                         }
                         for device in factory.device_stats
                     ]
