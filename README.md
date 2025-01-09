@@ -99,16 +99,10 @@ python --version
 Use the `venv` module to create a virtual environment within the project. You can specify the name of the folder where the virtual environment will be created:
 
 ```bash
-python -m venv <env_name>
+python -m venv ZDZW_BE
 ```
 
-Replace `<env_name>` with your desired name for the virtual environment folder. For example:
-
-```bash
-python -m venv my_env
-```
-
-This will create a folder named `my_env` in your project directory, containing the virtual environment.
+This will create a folder named `ZDZW_BE` in your project directory, containing the virtual environment.
 
 ### **4.1 Activate the virtual environment**
 Activate the virtual environment:
