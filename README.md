@@ -108,13 +108,7 @@ This will create a folder named `ZDZW_BE` in your project directory, containing 
 Activate the virtual environment:
 
 ```bash
-source <env_name>/bin/activate
-```
-
-For example:
-
-```bash
-source my_env/bin/activate
+source ZDZW_BE/bin/activate
 ```
 
 Verify that the virtual environment is activated:
