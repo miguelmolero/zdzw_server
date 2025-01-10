@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 import orjson
 import os
@@ -6,10 +6,11 @@ from pathlib import Path
 from datetime import datetime
 from typing import List
 from config.config import STORED_RECORDS_PATH, BASE_PATH
-from models.filter_payload import RequestedPayload, InspectionFilters, CurrentRecord
+from models.filter_payload import RequestedPayload, InspectionFilters, CurrentRecord, OrderFilters
 from models.record_data import RecordRawData
 from models.statistics_data import StatisticsData, FactoryStatsData, StatsData
-from database.database_conection import SessionLocal
+from database.database_conection import GetDbInstance, SessionLocal
+from sqlalchemy.orm import Session
 from database.models.RecordDataModel.records_data import RecordsData
 from database.models.FactoryDataModel.factory_data import FactoryData
 from database.models.DeviceDataModel.device_data import DeviceData
@@ -54,11 +55,9 @@ async def get_strip_chart(record_id: int):
         raise HTTPException(status_code=500, detail=f"Error to read file: {str(e)}")
     
 @router.post("/api/stripchart/{navigation}")
-async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
+async def post_strip_chart(navigation: str, payload_data: RequestedPayload, db: Session = Depends(GetDbInstance)):
     filters_data : InspectionFilters = payload_data.nav_filters
     current_record_data : CurrentRecord = payload_data.loaded_record
-
-    db = SessionLocal()
 
     if filters_data.start_date != -1:
         filters_data.start_date = record_data_handler.GetFirstTimestamp(db, RecordsData)
@@ -132,29 +131,16 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload):
                 raise HTTPException(status_code=500, detail=f"Error to read file: {str(e)}")
             
 @router.post("/api/statistics")
-async def post_statistics(payload_data: RequestedPayload):
+async def post_statistics(payload_data: RequestedPayload, db: Session = Depends(GetDbInstance)):
     filters_data : InspectionFilters = payload_data.nav_filters
-    current_record_data : CurrentRecord = payload_data.loaded_record
+    order_filters : OrderFilters = payload_data.order_filters
 
-    init_data = filters_data.start_date
-    end_data = filters_data.end_date
-    disposition = filters_data.disposition
     factory_id = filters_data.factory_id
     device_id = filters_data.device_id
-    is_analysis = filters_data.is_analysis
     
-    db = SessionLocal()
-
     statistics_data = StatisticsData(factory_stats=[])
     factory_stats : List[FactoryStatsData] = []
     factories = []
-    # if factory_id == -1:
-    #     factories = factory_data_handler.GetFactories(db, FactoryData)
-    # else:
-    #     if not factory_data_handler.SelectByFactoryId(db, FactoryData, factory_id): 
-    #         return JSONResponse(content={"error": "Factory not found"})
-    #     else:
-    #         factories.append(factory_id)
     factories = factory_data_handler.GetFactories(db, FactoryData, filters_data)
 
     for factory in factories:
@@ -168,10 +154,9 @@ async def post_statistics(payload_data: RequestedPayload):
             else:
                 device_data = StatsData(record_data_handler.get_device_stats(db, RecordsData, factory, device_id)[0])
                 devices_stats.append(device_data)
-        factory_data = record_data_handler.get_factory_stats(db, RecordsData, factory)
+        factory_data = record_data_handler.get_factory_stats(db, RecordsData, order_filters, factory)
         factory_stats.append(FactoryStatsData(factory_data=factory_data, device_stats=devices_stats))
         
     statistics_data.factory_stats = factory_stats
     payload_to_send = StatisticsData.encode_custom(statistics_data)
-    db.close()
     return JSONResponse(content=payload_to_send)
