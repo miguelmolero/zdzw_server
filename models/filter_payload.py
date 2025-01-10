@@ -13,7 +13,7 @@ class InspectionFilters(BaseModel):
     is_analysis: Optional[bool] = False
 
 class OrderFilters(BaseModel):
-    order_by: Optional[str] = None
+    order_direction: Optional[str] = None
     order_type: Optional[str] = None
 
 class CurrentRecord(BaseModel):

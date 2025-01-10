@@ -16,8 +16,6 @@ def GetFactories(db: Session, model: Type[DeclarativeMeta], filters: InspectionF
     factory_id = filters.factory_id
     job_id = filters.job_id
 
-    print(f"Filters: {filters}")
-
     query = db.query(model.factory_id)
 
     if factory_id != -1:
