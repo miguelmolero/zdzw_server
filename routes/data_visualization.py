@@ -18,6 +18,7 @@ from database.models.RecordDataModel import records_data_database_handler as rec
 from database.models.FactoryDataModel import factory_data_database_handler as factory_data_handler
 from database.models.DeviceDataModel import device_data_database_handler as device_data_handler
 from services.get_filtered_data import get_filtered_data
+from utils.data_handling import order_data
 
 router = APIRouter()
 
@@ -154,9 +155,10 @@ async def post_statistics(payload_data: RequestedPayload, db: Session = Depends(
             else:
                 device_data = StatsData(record_data_handler.get_device_stats(db, RecordsData, factory, device_id)[0])
                 devices_stats.append(device_data)
-        factory_data = record_data_handler.get_factory_stats(db, RecordsData, order_filters, factory)
+        factory_data = record_data_handler.get_factory_stats(db, RecordsData, factory)
         factory_stats.append(FactoryStatsData(factory_data=factory_data, device_stats=devices_stats))
         
     statistics_data.factory_stats = factory_stats
+    statistics_data = order_data(statistics_data, order_filters)
     payload_to_send = StatisticsData.encode_custom(statistics_data)
     return JSONResponse(content=payload_to_send)
