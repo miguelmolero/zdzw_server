@@ -11,3 +11,4 @@ argon2-cffi
 python-jose
 SQLAlchemy
 scipy
+python-dotenv
