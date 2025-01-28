@@ -5,6 +5,19 @@ from routes.static_routes import register_static_routes
 from routes.auth import router as auth_router
 from routes.data_visualization import router as data_visualization_router
 from services.Initialize import initialize
+from dotenv import load_dotenv
+import sys
+import os
+
+load_dotenv()
+is_pyinstaller = hasattr(sys, '_MEIPASS')
+environment = os.getenv("ENVIRONMENT", "development")
+if is_pyinstaller or environment == "production":
+    print("Running in production mode")
+    port = 4000
+else:
+    print("Running in development mode")
+    port = int(os.getenv("PORT", 8000))
 
 # Initialize database
 @asynccontextmanager
@@ -26,5 +39,5 @@ register_static_routes(app)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="localhost", port=8000)
+    uvicorn.run("main:app", host="localhost", port=port)
 
