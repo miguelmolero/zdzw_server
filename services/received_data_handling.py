@@ -11,9 +11,12 @@ import database.models.RecordDataModel.records_data_database_handler as records_
 import database.models.FactoryDataModel.factory_data_database_handler as factory_data_handler
 import database.models.DeviceDataModel.device_data_database_handler as device_data_handler
 from models.record_data import RecordRawData
+import asyncio
 
+async def read_received_data():
+    await asyncio.to_thread(sync_read_received_data)
 
-def read_received_data():
+def sync_read_received_data():
     # Check if the received data directory exists
     if not os.path.exists(RECEIVED_RECORDS_PATH):
         os.makedirs(RECEIVED_RECORDS_PATH, exist_ok=True)
