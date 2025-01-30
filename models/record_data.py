@@ -46,7 +46,7 @@ class RecordRawData(BaseModel):
         # Adaptar el JSON al modelo esperado
         payload = data.get("payload", {})
         strip_data = payload.get("strip_data", [])
-        localization_data = data.get("localization_info", {})
+        localization_data = data.get("localization_data", {})
 
         # Transformar el JSON para que coincida con la estructura esperada
         transformed_data = {
