@@ -19,5 +19,5 @@ SECRET_KEY = secrets.token_urlsafe(32)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 DATABASE_URL = "sqlite:///./zdzw.db"  # database URL
-RECEIVED_RECORDS_PATH = os.path.join(BASE_PATH, '../ReceivedRecords/')
+RECEIVED_RECORDS_PATH = os.path.join(BASE_PATH, '../../ReceivedRecords/')
 STORED_RECORDS_PATH = os.path.join(BASE_PATH, '../RecordsData/')
