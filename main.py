@@ -5,7 +5,9 @@ from routes.static_routes import register_static_routes
 from routes.auth import router as auth_router
 from routes.data_visualization import router as data_visualization_router
 from services.Initialize import initialize
+from services.timer_service import start_timer
 from dotenv import load_dotenv
+import asyncio
 import sys
 import os
 
@@ -23,6 +25,7 @@ else:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     initialize()
+    asyncio.create_task(start_timer())
     yield
 
 app = FastAPI(lifespan=lifespan)
