@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import List
 from config.config import STORED_RECORDS_PATH, BASE_PATH
 from models.filter_payload import RequestedPayload, InspectionFilters, CurrentRecord, OrderFilters
-from models.record_data import RecordRawData
+from models.record_data import InspectionData
 from models.statistics_data import StatisticsData, FactoryStatsData, StatsData
 from database.database_conection import GetDbInstance, SessionLocal
 from sqlalchemy.orm import Session
@@ -85,7 +85,7 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload, db: 
                     raise HTTPException(status_code=404, detail="record not found")
                 with open(json_file, "r", encoding="utf-8") as file:
                     data = orjson.loads(file.read())
-                    parsed_data = RecordRawData.parse_custom(data)
+                    parsed_data = InspectionData.parse_custom(data)
                     if is_analysis:
                         filtered_data = get_filtered_data(parsed_data)
                     payload_to_send = {
@@ -119,7 +119,7 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload, db: 
                     raise HTTPException(status_code=404, detail="record not found")
                 with open(json_file, "r", encoding="utf-8") as file:
                     data = orjson.loads(file.read())
-                    parsed_data = RecordRawData.parse_custom(data)
+                    parsed_data = InspectionData.parse_custom(data)
                     if is_analysis:
                         filtered_data = get_filtered_data(parsed_data)
                     payload_to_send = {

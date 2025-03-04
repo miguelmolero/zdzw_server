@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
+from models.defects_data import DefectsData
 
 class Metadata(BaseModel):
     record_id: int
@@ -20,7 +21,7 @@ class StripData(BaseModel):
     tof: List[float]
     amp_damages: Optional[List[float]] = None
     tof_damages: Optional[List[float]] = None
-
+    defects_data: Optional[DefectsData] = None
 class RecordData(BaseModel):
     meta_data: Metadata
     strip_data: List[StripData]
@@ -30,19 +31,13 @@ class LocalizationData(BaseModel):
     factory_name: str
     device_id: int
     device_name: str
-class ErrorData(BaseModel):
-    code: int
-    msg: str
-    errors: Optional[List[str]] = None
 
-class RecordRawData(BaseModel):
-    success: bool
-    error: ErrorData
+class InspectionData(BaseModel):
     payload_data: RecordData
     localization_data: LocalizationData
 
     @classmethod
-    def parse_custom(cls, data: Dict[str, Any]) -> "RecordRawData":
+    def parse_custom(cls, data: Dict[str, Any]) -> "InspectionData":
         # Adaptar el JSON al modelo esperado
         payload = data.get("payload", {})
         strip_data = payload.get("strip_data", [])
@@ -50,12 +45,6 @@ class RecordRawData(BaseModel):
 
         # Transformar el JSON para que coincida con la estructura esperada
         transformed_data = {
-            "success": data.get("success", False),
-            "error": {
-                "code": data.get("error", {}).get("code", 0),
-                "msg": data.get("error", {}).get("msg", ""),
-                "errors": data.get("error", {}).get("errors"),
-            },
             "payload_data": {
                 "meta_data": {
                     "record_id": payload.get("record_id"),
@@ -75,8 +64,13 @@ class RecordRawData(BaseModel):
                         "distance": strip.get("distance", []),
                         "amplitude": strip.get("amplitude", []),
                         "tof": strip.get("tof", []),
-                        "amp_damages": strip.get("amp_damages", []),
-                        "tof_damages": strip.get("tof_damages", []),
+                        "amp_damages": strip.get("amp_damages"),
+                        "tof_damages": strip.get("tof_damages"),
+                        "defects_data": (
+                            DefectsData(defects_amp=[], defects_tof=[])
+                            if "defects_data" not in strip or not strip["defects_data"]
+                            else DefectsData(**strip["defects_data"])
+                        ),
                     }
                     for strip in strip_data
                 ],
@@ -88,6 +82,4 @@ class RecordRawData(BaseModel):
                 "device_name": localization_data.get("device_name"),
             },
         }
-
-        # Validar y crear una instancia del modelo
         return cls(**transformed_data)
