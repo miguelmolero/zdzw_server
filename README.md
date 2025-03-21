@@ -190,3 +190,59 @@ deactivate
    ```
 
 ---
+
+## **Basic Docker Commands**
+
+Here are basic Docker commands that are useful when working with containerized applications:
+
+### **1. Create a Docker image**
+
+```bash
+docker build -t image_name .
+```
+- Replace `image` with your desired image name.
+
+### **2. Run a Docker container**
+
+```bash
+docker run -d --name container_name -p host_port:container_port image_name
+```
+
+- `-d` runs the container in detached mode (background).
+- Replace `<container_name>` with a name for your container.
+- Replace `<image_name>` with your Docker image name.
+
+### **2. Stop a running container**
+
+```bash
+docker stop <container_name>
+```
+
+### **3. Map a folder to a Docker container**
+
+```bash
+docker run -v /host/path:/path/in/container -d <image_name>
+```
+
+- Replace `/path/on/host` with the local folder path.
+- Replace `/path/in/container` with the target folder path inside the container.
+
+### **3. Connect to a running Docker container shell**
+
+```bash
+docker exec -it <container_name> /bin/bash
+```
+
+- `-it` stands for interactive terminal.
+- Replace `/bin/bash` with the appropriate shell if bash isn't available.
+
+### **4. Delete a Docker image**
+
+```bash
+docker rmi <image_name>
+```
+
+- Replace `<image_name>` with the name or ID of the Docker image to delete.
+
+---
+
