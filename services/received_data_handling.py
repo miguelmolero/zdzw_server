@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import orjson
 import shutil
 from datetime import datetime
@@ -18,19 +19,19 @@ async def read_received_data():
 
 def sync_read_received_data():
     # Check if the received data directory exists
-    if not os.path.exists(RECEIVED_RECORDS_PATH):
-        os.makedirs(RECEIVED_RECORDS_PATH, exist_ok=True)
+    if not RECEIVED_RECORDS_PATH.exists():
+        RECEIVED_RECORDS_PATH.mkdir(parents=True, exist_ok=True)
         return
 
-    os.makedirs(STORED_RECORDS_PATH, exist_ok=True)
+    STORED_RECORDS_PATH.mkdir(parents=True, exist_ok=True)
 
     db = SessionLocal()
-    file_path : str = ""
+    file_path : Path | None = None
 
     try:
-        for file_name in os.listdir(RECEIVED_RECORDS_PATH):
-            if file_name.endswith(".json"):
-                file_path = os.path.join(RECEIVED_RECORDS_PATH, file_name)
+        for file_name in RECEIVED_RECORDS_PATH.iterdir():
+            if file_name.suffix == ".json" and file_name.is_file():
+                file_path = RECEIVED_RECORDS_PATH / file_name
                 # Leer el contenido del archivo JSON
                 with open(file_path, "r") as file:
                     print(f"Processing file: {file_name}")
@@ -67,8 +68,7 @@ def sync_read_received_data():
                     existing_record = records_data_handler.SelectByRecordId(db, RecordsData, json_record_id, localization_data.factory_id, localization_data.device_id)
                     if existing_record:
                         print(f"The record_id {json_record_id} already exists")
-                        if os.path.exists(file_path):
-                            os.remove(file_path)
+                        file_path.unlink(missing_ok=True)
                         continue
                     else:
                         new_inspection = RecordsData(
@@ -83,20 +83,19 @@ def sync_read_received_data():
                         if not records_data_handler.InsertRecord(db, RecordsData, instance = new_inspection):
                             print(f"Error inserting record_id {json_record_id}")
                             continue
-
                     # Mover el archivo procesado
-                    factory_folder = os.path.join(STORED_RECORDS_PATH, str(localization_data.factory_id))
-                    os.makedirs(factory_folder, exist_ok=True)
-                    device_folder = os.path.join(factory_folder, str(localization_data.device_id))
-                    os.makedirs(device_folder, exist_ok=True)
-                    destination_folder = os.path.join(device_folder, str(json_record_id))
-                    os.makedirs(destination_folder, exist_ok=True)
-                    shutil.move(file_path, os.path.join(destination_folder, file_name))
+                    factory_folder = STORED_RECORDS_PATH / str(localization_data.factory_id)
+                    factory_folder.mkdir(parents=True, exist_ok=True)
+                    device_folder = factory_folder / str(localization_data.device_id)
+                    device_folder.mkdir(parents=True, exist_ok=True)
+                    destination_folder = device_folder / str(json_record_id)
+                    destination_folder.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(file_path), str(destination_folder / file_name))
                     print(f"Proccessed file: {file_name}")
     except Exception as e:
         print(f"Proccessing error {file_name}: {e}")
     finally:
         db.close()
         # Eliminar el archivo original si aún existe
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        if file_path and file_path.exists() and file_path.is_file():
+            file_path.unlink(missing_ok=True)

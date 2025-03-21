@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 import orjson
-import os
 from pathlib import Path
 from datetime import datetime
 from typing import List
@@ -24,10 +23,10 @@ router = APIRouter()
 
 @router.get("/api/strip_data")
 async def get_strip_data():
-    json_file_path = os.path.join(STORED_RECORDS_PATH ,"StripData.json")
+    json_file_path = STORED_RECORDS_PATH / "StripData.json"
     print("/api/strip_data", json_file_path)
     print("BASE PATH", BASE_PATH)
-    if not os.path.exists(json_file_path):
+    if not json_file_path.exists():
         raise HTTPException(status_code=404, detail="record not found")
     try:
         with open(json_file_path, "r", encoding="utf-8") as file:
@@ -41,7 +40,7 @@ async def get_strip_data():
     
 @router.get("/api/stripchart/{record_id}")
 async def get_strip_chart(record_id: int):
-    json_file_path = os.path.join(STORED_RECORDS_PATH, str(record_id))
+    json_file_path = STORED_RECORDS_PATH / str(record_id)
     try:
         folder = Path(json_file_path)
         json_file = list(folder.glob("*.json"))[0]
@@ -77,7 +76,7 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload, db: 
             else:
                 records = edge_data["last"]
             file_path = str(records.factory_id) + "/" + str(records.device_id) + "/" + str(records.record_id) 
-            json_file_path = os.path.join(STORED_RECORDS_PATH, file_path)
+            json_file_path = STORED_RECORDS_PATH / file_path
             try:
                 folder = Path(json_file_path)
                 json_file = list(folder.glob("*.json"))[0]
@@ -111,7 +110,7 @@ async def post_strip_chart(navigation: str, payload_data: RequestedPayload, db: 
             if adjacent_record is None:
                 raise HTTPException(status_code=404, detail="record not found")
             record_path = str(adjacent_record.factory_id) + "/" + str(adjacent_record.device_id) + "/" + str(adjacent_record.record_id)
-            json_file_path = os.path.join(STORED_RECORDS_PATH, record_path)
+            json_file_path = STORED_RECORDS_PATH / record_path
             try:
                 folder = Path(json_file_path)
                 json_file = list(folder.glob("*.json"))[0]
