@@ -4,6 +4,7 @@ from middlewares.cors_middleware import add_middlewares
 from routes.static_routes import register_static_routes
 from routes.auth import router as auth_router
 from routes.data_visualization import router as data_visualization_router
+from routes.received_records import router as received_records_router
 from services.Initialize import initialize
 from services.timer_service import start_timer
 from dotenv import load_dotenv
@@ -36,6 +37,7 @@ add_middlewares(app)
 # Register authentication routes
 app.include_router(auth_router)
 app.include_router(data_visualization_router)
+app.include_router(received_records_router)
 
 #Register static routes
 register_static_routes(app)
