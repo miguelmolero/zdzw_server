@@ -246,3 +246,28 @@ docker rmi <image_name>
 
 ---
 
+### **5. Delete all images and containers**
+
+- Remove all containers
+
+```bash
+docker rm -f $(docker ps -aq)
+```
+
+- Remove all images
+
+```bash
+docker rmi -f $(docker images -aq)
+```
+
+## **Other Utility Commands**
+
+### Check Received Records Endpoint
+
+Check the endpoint that allow us to upload files to the container
+
+```bash
+curl -F "file=@file_to_upload.json" http://ip_dir:port/api/received_records
+```
+
+
