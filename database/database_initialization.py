@@ -4,12 +4,13 @@ from pathlib import Path
 from database.database_conection import SessionLocal, engine, Base
 from utils.security import hash_password
 from database.models.Users.users import User
+from config.config import DATABASE_PATH
 
 
 
 # initialize the database
 def init_db():
-    if not Path("./zdzw.db").exists():
+    if not Path(DATABASE_PATH).exists():
         print("Database not found, creating...")
     Base.metadata.create_all(bind=engine)  # Crea las tablas si no existen
     db = SessionLocal()
