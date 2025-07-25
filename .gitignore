@@ -3,8 +3,7 @@ dist/
 build/
 static/
 ZDZW_BE/
-RecordsData/
-ReceivedRecords/
+app/
 __pycache__/
 *.pyc
 *.pyo
