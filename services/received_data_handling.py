@@ -31,7 +31,7 @@ def sync_read_received_data():
     try:
         for file_name in RECEIVED_RECORDS_PATH.iterdir():
             if file_name.suffix == ".json" and file_name.is_file():
-                file_path = RECEIVED_RECORDS_PATH / file_name
+                file_path = file_name
                 # Leer el contenido del archivo JSON
                 with open(file_path, "r") as file:
                     print(f"Processing file: {file_name}")
@@ -84,16 +84,18 @@ def sync_read_received_data():
                             print(f"Error inserting record_id {json_record_id}")
                             continue
                     # Mover el archivo procesado
+                    print(f"Moving file {file_path} to {STORED_RECORDS_PATH}")
                     factory_folder = STORED_RECORDS_PATH / str(localization_data.factory_id)
                     factory_folder.mkdir(parents=True, exist_ok=True)
                     device_folder = factory_folder / str(localization_data.device_id)
                     device_folder.mkdir(parents=True, exist_ok=True)
                     destination_folder = device_folder / str(json_record_id)
                     destination_folder.mkdir(parents=True, exist_ok=True)
-                    shutil.move(str(file_path), str(destination_folder / file_name))
-                    print(f"Proccessed file: {file_name}")
+                    shutil.move(str(file_path), str(destination_folder / file_path.name))
+                    print(f"File {file_path} processed and moved to {destination_folder/file_path.name}")
+                    # print(f"Proccessed file: {file_name}")
     except Exception as e:
-        print(f"Proccessing error {file_name}: {e}")
+        print(f"Proccessing error {file_path}: {e}")
     finally:
         db.close()
         # Eliminar el archivo original si aún existe

@@ -14,7 +14,10 @@ else:
 CORS_ORIGINS = ["http://localhost:5000"]
 
 # Configuración de la ruta de archivos estáticos
-STATIC_FOLDER_PATH = (BASE_PATH / "../static/dist").resolve()
+if is_docker():
+    STATIC_FOLDER_PATH = (BASE_PATH / "static" / "dist").resolve()
+else:
+    STATIC_FOLDER_PATH = (BASE_PATH / "../static/dist").resolve()
 
 SECRET_KEY = secrets.token_urlsafe(32)
 ALGORITHM = "HS256"
