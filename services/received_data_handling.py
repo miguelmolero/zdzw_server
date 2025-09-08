@@ -13,6 +13,7 @@ import database.models.FactoryDataModel.factory_data_database_handler as factory
 import database.models.DeviceDataModel.device_data_database_handler as device_data_handler
 from models.record_data import InspectionData
 import asyncio
+import zipfile
 
 async def read_received_data():
     await asyncio.to_thread(sync_read_received_data)
@@ -30,7 +31,12 @@ def sync_read_received_data():
 
     try:
         for file_name in RECEIVED_RECORDS_PATH.iterdir():
-            if file_name.suffix == ".json" and file_name.is_file():
+            if file_name.is_file() and file_name.suffix.lower() == ".zip":
+                print(f"Processing ZIP file: {file_name}")
+                with zipfile.ZipFile(file_name, 'r') as zip_ref:
+                    zip_ref.extractall(RECEIVED_RECORDS_PATH)
+                file_name.unlink(missing_ok=True)
+            elif file_name.is_file() and file_name.suffix.lower() == ".json":
                 file_path = file_name
                 # Leer el contenido del archivo JSON
                 with open(file_path, "r") as file:
